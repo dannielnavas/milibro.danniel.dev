@@ -3,10 +3,10 @@ import { IsArray, IsBoolean, IsNotEmpty, IsString } from 'class-validator';
 export class CreateLibraryDto {
   @IsString()
   @IsNotEmpty()
-  name: string;
+  readonly name: string;
   @IsBoolean()
   @IsNotEmpty()
-  wishlist: boolean;
+  readonly wishlist: boolean;
   @IsArray()
-  books: string[];
+  readonly books: string[];
 }
