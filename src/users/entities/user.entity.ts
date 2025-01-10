@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
+import { Library } from 'src/library/entities/library.entity';
 
 @Schema()
 export class User extends Document {
@@ -11,6 +12,9 @@ export class User extends Document {
   role: string;
   @Prop({ required: true })
   name: string;
+
+  @Prop({ type: [{ type: Types.ObjectId, ref: Library.name }] })
+  libraries: Types.Array<Library>; // 👈 relation 1:N
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

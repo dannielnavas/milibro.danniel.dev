@@ -4,9 +4,11 @@ import * as Joi from 'joi';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { BooksModule } from './books/books.module';
 import config from './config';
 import { DatabaseModule } from './database/database.module';
 import { environments } from './environments';
+import { LibraryModule } from './library/library.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -29,6 +31,8 @@ import { UsersModule } from './users/users.module';
     }),
     AuthModule,
     UsersModule,
+    LibraryModule,
+    BooksModule,
   ],
   controllers: [AppController],
   providers: [AppService],
