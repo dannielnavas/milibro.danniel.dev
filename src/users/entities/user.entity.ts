@@ -14,7 +14,7 @@ export class User extends Document {
   name: string;
 
   @Prop({ type: [{ type: Types.ObjectId, ref: Library.name }] })
-  libraries: Types.Array<Library>; // 👈 relation 1:N
+  library: Types.Array<Library>;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

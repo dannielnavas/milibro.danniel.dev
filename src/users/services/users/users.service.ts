@@ -10,7 +10,8 @@ export class UsersService {
   constructor(@InjectModel(User.name) private readonly users: Model<User>) {}
 
   async findOne(id: string) {
-    const user = await this.users.findById(id);
+    console.log('id', id);
+    const user = await this.users.findById(id).populate('library').exec();
     if (!user) {
       throw new NotFoundException(`User #${id} not found`);
     }
@@ -28,16 +29,19 @@ export class UsersService {
   }
 
   async findOneByEmail(email: string) {
-    const user = await this.users.findOne({
-      email,
-    });
+    const user = await this.users
+      .findOne({
+        email,
+      })
+      .populate('library')
+      .exec();
     console.log(user);
 
     return user;
   }
 
   async getUserById(id: string) {
-    return this.users.findById(id).exec();
+    return this.users.findById(id).populate('library').exec();
   }
 
   async update(id: string, changes: string) {
@@ -50,10 +54,10 @@ export class UsersService {
     }
     const updateLibrary = {
       ...userData,
-      libraries: userData.libraries || [], // Inicializar libraries si es undefined
+      library: userData.library || [], // Inicializar libraries si es undefined
     };
     console.log('updateLibrary', updateLibrary);
-    updateLibrary.libraries.push(changes);
+    updateLibrary.library.push(changes);
     console.log('updateLibrary', updateLibrary);
     const user = await this.users
       .findByIdAndUpdate(id, { $set: updateLibrary }, { new: true })

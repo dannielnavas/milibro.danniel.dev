@@ -26,5 +26,5 @@ export class CreateUserDto {
 
   @IsNotEmpty()
   @IsArray()
-  readonly libraries: string[];
+  readonly library: string[];
 }
