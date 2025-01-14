@@ -15,5 +15,6 @@ import { BooksService } from './services/books/books.service';
       },
     ]),
   ],
+  exports: [BooksService],
 })
 export class BooksModule {}

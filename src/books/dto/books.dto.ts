@@ -8,7 +8,7 @@ import {
   MinLength,
 } from 'class-validator';
 
-export class BooksDto {
+export class CreateBooksDto {
   @IsString()
   @IsNotEmpty()
   readonly title: string;

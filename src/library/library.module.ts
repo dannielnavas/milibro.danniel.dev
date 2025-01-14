@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { UsersModule } from 'src/users/users.module';
 import { LibraryController } from './controllers/library/library.controller';
 import { Library, LibrarySchema } from './entities/library.entity';
 import { LibraryService } from './services/library/library.service';
@@ -8,6 +9,7 @@ import { LibraryService } from './services/library/library.service';
   providers: [LibraryService],
   controllers: [LibraryController],
   imports: [
+    UsersModule,
     MongooseModule.forFeature([
       {
         name: Library.name,
@@ -15,5 +17,6 @@ import { LibraryService } from './services/library/library.service';
       },
     ]),
   ],
+  exports: [LibraryService],
 })
 export class LibraryModule {}
