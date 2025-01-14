@@ -27,7 +27,7 @@ export class UsersController {
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() payload: Partial<CreateUserDto>) {
+  update(@Param('id') id: string, @Body() payload: string) {
     return this.usersService.update(id, payload);
   }
 

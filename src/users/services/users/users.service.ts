@@ -40,18 +40,25 @@ export class UsersService {
     return this.users.findById(id).exec();
   }
 
-  async update(id: string, changes: Partial<CreateUserDto>) {
+  async update(id: string, changes: string) {
+    console.log('id', id);
+    console.log('changes', changes);
     const userData = await this.getUserById(id);
+    console.log('userData', userData);
     if (!userData) {
       throw new NotFoundException(`User #${id} not found`);
     }
     const updateLibrary = {
       ...userData,
+      libraries: userData.libraries || [], // Inicializar libraries si es undefined
     };
+    console.log('updateLibrary', updateLibrary);
     updateLibrary.libraries.push(changes);
+    console.log('updateLibrary', updateLibrary);
     const user = await this.users
       .findByIdAndUpdate(id, { $set: updateLibrary }, { new: true })
       .exec();
+    console.log('user', user);
     if (!user) {
       throw new NotFoundException(`User #${id} not found`);
     }

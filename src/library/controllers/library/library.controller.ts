@@ -1,11 +1,10 @@
 import { Body, Controller, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiKeyGuard } from 'src/auth/guards/api-key/api-key.guard';
 import { CreateLibraryDto } from 'src/library/dto/library.dto';
 import { LibraryService } from '../../services/library/library.service';
 
 @Controller('library')
-@UseGuards(ApiKeyGuard, AuthGuard('jwt'))
+@UseGuards(AuthGuard('jwt'))
 export class LibraryController {
   constructor(private readonly libraryService: LibraryService) {}
 

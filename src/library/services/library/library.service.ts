@@ -14,7 +14,8 @@ export class LibraryService {
 
   async create(data: CreateLibraryDto, id: string) {
     const newLibrary = new this.libraries(data);
-    this.usersService.update(id, newLibrary._id);
+    console.log(newLibrary);
+    this.usersService.update(id, newLibrary._id as string);
     return newLibrary.save();
   }
 
