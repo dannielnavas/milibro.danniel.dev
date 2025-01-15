@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
+import { ObjectId } from 'mongodb';
 import { Model } from 'mongoose';
 import { CreateUserDto } from 'src/users/dtos/user.dto';
 import { User } from 'src/users/entities/user.entity';
@@ -10,8 +11,10 @@ export class UsersService {
   constructor(@InjectModel(User.name) private readonly users: Model<User>) {}
 
   async findOne(id: string) {
-    console.log('id', id);
-    const user = await this.users.findById(id).populate('library').exec();
+    const user = await this.users
+      .findById(new ObjectId(id))
+      .populate('library')
+      .exec();
     if (!user) {
       throw new NotFoundException(`User #${id} not found`);
     }
@@ -45,24 +48,18 @@ export class UsersService {
   }
 
   async update(id: string, changes: string) {
-    console.log('id', id);
-    console.log('changes', changes);
     const userData = await this.getUserById(id);
-    console.log('userData', userData);
     if (!userData) {
       throw new NotFoundException(`User #${id} not found`);
     }
     const updateLibrary = {
-      ...userData,
-      library: userData.library || [], // Inicializar libraries si es undefined
+      ...userData.toObject(),
+      library: userData.library || [],
     };
-    console.log('updateLibrary', updateLibrary);
     updateLibrary.library.push(changes);
-    console.log('updateLibrary', updateLibrary);
     const user = await this.users
       .findByIdAndUpdate(id, { $set: updateLibrary }, { new: true })
       .exec();
-    console.log('user', user);
     if (!user) {
       throw new NotFoundException(`User #${id} not found`);
     }

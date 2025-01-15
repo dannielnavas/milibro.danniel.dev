@@ -14,7 +14,6 @@ export class LibraryService {
 
   async create(data: CreateLibraryDto, id: string) {
     const newLibrary = new this.libraries(data);
-    console.log(newLibrary);
     this.usersService.update(id, newLibrary._id as string);
     return newLibrary.save();
   }
@@ -27,12 +26,24 @@ export class LibraryService {
     return library;
   }
 
-  async update(id: string, changes: Partial<CreateLibraryDto>) {
+  async update(id: string, changes: string) {
+    const libraryData = await this.findOneById(id);
+    console.log(libraryData);
+    if (!libraryData) {
+      throw new NotFoundException(`User #${id} not found`);
+    }
+    const updateBooks = {
+      ...libraryData.toObject(),
+      books: libraryData.books || [],
+    };
+    console.log(updateBooks);
+    updateBooks.books.push(changes);
+    console.log(updateBooks);
     const library = await this.libraries
-      .findByIdAndUpdate(id, { $set: changes }, { new: true })
+      .findByIdAndUpdate(id, { $set: updateBooks }, { new: true })
       .exec();
     if (!library) {
-      throw new NotFoundException(`Product ${id} not found`);
+      throw new NotFoundException(`Library #${id} not found`);
     }
     return library;
   }

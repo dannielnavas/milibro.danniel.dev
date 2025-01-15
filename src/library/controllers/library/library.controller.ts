@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateLibraryDto } from 'src/library/dto/library.dto';
 import { LibraryService } from '../../services/library/library.service';
@@ -13,8 +13,8 @@ export class LibraryController {
     return this.libraryService.create(payload, id);
   }
 
-  @Put('/:id')
-  update(@Param('id') id: string, @Body() payload: Partial<CreateLibraryDto>) {
-    return this.libraryService.update(id, payload);
+  @Get('/:id')
+  findOne(@Param('id') id: string) {
+    return this.libraryService.findOneById(id);
   }
 }

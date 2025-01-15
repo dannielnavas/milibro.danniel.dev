@@ -6,20 +6,10 @@ import { UsersService } from 'src/users/services/users/users.service';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  // @Get()
-  // findAll() {
-  //   return this.usersService.findAll();
-  // }
-
   @Get(':id')
   get(@Param('id') id: string) {
     return this.usersService.findOne(id);
   }
-
-  // @Get(':id/orders')
-  // getOrders(@Param('id', ParseIntPipe) id: number) {
-  //   return this.usersService.getOrderByUSer(id);
-  // }
 
   @Post()
   create(@Body() payload: CreateUserDto) {
@@ -30,9 +20,4 @@ export class UsersController {
   update(@Param('id') id: string, @Body() payload: string) {
     return this.usersService.update(id, payload);
   }
-
-  // @Delete(':id')
-  // remove(@Param('id', ParseIntPipe) id: number) {
-  //   return this.usersService.remove(+id);
-  // }
 }
