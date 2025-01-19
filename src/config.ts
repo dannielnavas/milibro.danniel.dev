@@ -2,6 +2,7 @@ import { registerAs } from '@nestjs/config';
 
 export default registerAs('config', () => ({
   apiKeyGoogle: process.env.API_KEY_GOOGLE,
+  apiKeyLibraryThing: process.env.API_KEY_LIBRARY_THING,
   apiKey: process.env.API_KEY,
   jwtSecret: process.env.JWT_SECRET,
   mongo: {

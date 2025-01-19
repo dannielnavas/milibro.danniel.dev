@@ -36,7 +36,6 @@ export class UsersService {
       .findOne({
         email,
       })
-      .populate('library')
       .exec();
     console.log(user);
 
@@ -44,21 +43,16 @@ export class UsersService {
   }
 
   async getUserById(id: string) {
-    return this.users.findById(id).populate('library').exec();
+    return this.users.findById(id).exec();
   }
 
-  async update(id: string, changes: string) {
+  async update(id: string, payload: CreateUserDto) {
     const userData = await this.getUserById(id);
     if (!userData) {
       throw new NotFoundException(`User #${id} not found`);
     }
-    const updateLibrary = {
-      ...userData.toObject(),
-      library: userData.library || [],
-    };
-    updateLibrary.library.push(changes);
     const user = await this.users
-      .findByIdAndUpdate(id, { $set: updateLibrary }, { new: true })
+      .findByIdAndUpdate(id, { $set: payload }, { new: true })
       .exec();
     if (!user) {
       throw new NotFoundException(`User #${id} not found`);

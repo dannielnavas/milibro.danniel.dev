@@ -1,5 +1,6 @@
 import {
   IsBoolean,
+  IsMongoId,
   IsNotEmpty,
   IsNumber,
   IsString,
@@ -33,4 +34,7 @@ export class CreateBooksDto {
   @IsBoolean()
   @IsNotEmpty()
   readonly wishlist: boolean;
+  @IsMongoId()
+  @IsNotEmpty()
+  readonly library: string;
 }

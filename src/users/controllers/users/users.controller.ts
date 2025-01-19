@@ -17,7 +17,7 @@ export class UsersController {
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() payload: string) {
+  update(@Param('id') id: string, @Body() payload: CreateUserDto) {
     return this.usersService.update(id, payload);
   }
 }

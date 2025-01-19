@@ -20,6 +20,7 @@ import { UsersModule } from './users/users.module';
       load: [config],
       validationSchema: Joi.object({
         API_KEY_GOOGLE: Joi.string().required(),
+        API_KEY_LIBRARY_THING: Joi.string().required(),
         JWT_SECRET: Joi.string().required(),
         MONGO_DB: Joi.string().required(),
         MONGO_INIT_DB_ROOT_USERNAME: Joi.string().required(),

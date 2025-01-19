@@ -1,3 +1,4 @@
+import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { LibraryModule } from 'src/library/library.module';
@@ -10,6 +11,7 @@ import { BooksService } from './services/books/books.service';
   controllers: [BooksController],
   imports: [
     LibraryModule,
+    HttpModule,
     MongooseModule.forFeature([
       {
         name: Books.name,

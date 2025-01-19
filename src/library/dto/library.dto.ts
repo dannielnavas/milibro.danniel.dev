@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsNotEmpty, IsString } from 'class-validator';
+import { IsBoolean, IsMongoId, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateLibraryDto {
   @IsString()
@@ -7,6 +7,8 @@ export class CreateLibraryDto {
   @IsBoolean()
   @IsNotEmpty()
   readonly wishlist: boolean;
-  @IsArray()
-  readonly books: string[];
+
+  @IsMongoId()
+  @IsNotEmpty()
+  readonly user: string;
 }

@@ -8,13 +8,13 @@ import { LibraryService } from '../../services/library/library.service';
 export class LibraryController {
   constructor(private readonly libraryService: LibraryService) {}
 
-  @Post('/:idUser')
-  create(@Param('idUser') id: string, @Body() payload: CreateLibraryDto) {
-    return this.libraryService.create(payload, id);
+  @Post()
+  create(@Body() payload: CreateLibraryDto) {
+    return this.libraryService.create(payload);
   }
 
-  @Get('/:id')
-  findOne(@Param('id') id: string) {
-    return this.libraryService.findOneById(id);
+  @Get('/:idUser/:wishlist')
+  findOne(@Param('idUser') id: string, @Param('wishlist') wishlist: boolean) {
+    return this.libraryService.findOneByIdUserAndWishlist(id, wishlist);
   }
 }

@@ -1,7 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
+import { Library } from 'src/library/entities/library.entity';
 
-@Schema()
+@Schema({
+  timestamps: true,
+})
 export class Books extends Document {
   @Prop({ required: true })
   title: string;
@@ -17,6 +20,12 @@ export class Books extends Document {
   image_url: string;
   @Prop({ required: true })
   wishlist: boolean;
+
+  @Prop({
+    type: Types.ObjectId,
+    ref: Library.name,
+  })
+  library: Library | Types.ObjectId;
 }
 
 export const BooksSchema = SchemaFactory.createForClass(Books);

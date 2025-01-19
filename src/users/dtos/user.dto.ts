@@ -1,10 +1,4 @@
-import {
-  IsArray,
-  IsEmail,
-  IsNotEmpty,
-  IsString,
-  Length,
-} from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, Length } from 'class-validator';
 import { ERoles } from 'src/auth/models/roles.model';
 
 export class CreateUserDto {
@@ -24,7 +18,7 @@ export class CreateUserDto {
   @IsString()
   readonly name: string;
 
-  @IsNotEmpty()
-  @IsArray()
-  readonly library: string[];
+  // @IsNotEmpty()
+  // @IsArray()
+  // readonly library: string[];
 }
