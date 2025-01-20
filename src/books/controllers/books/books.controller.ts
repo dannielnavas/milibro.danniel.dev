@@ -36,4 +36,9 @@ export class BooksController {
     console.log(isbn);
     return this.booksService.searchBookByIsbn(isbn);
   }
+
+  @Get('/search-title/:title')
+  searchBookByTitle(@Param('title') title: string) {
+    return this.booksService.searchBookByTitle(title);
+  }
 }

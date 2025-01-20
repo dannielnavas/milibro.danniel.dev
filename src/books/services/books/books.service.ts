@@ -5,6 +5,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateBooksDto } from 'src/books/dto/books.dto';
 import { Books } from 'src/books/entities/books.entity';
+import { GoogleBooks, Item } from 'src/books/interface/google-books';
 import {
   BookOpenLibraryData,
   Identifiers,
@@ -55,29 +56,55 @@ export class BooksService {
       openLibrary[`ISBN:${isbn}`] as unknown as BookOpenLibraryData,
     );
 
-    return { googleBooks, openLibrary: openLibraryDetailsData };
+    let googleBooksData = {};
+
+    if ((googleBooks as unknown as GoogleBooks).totalItems > 0) {
+      googleBooksData = this.generateDataGoogleBooks(
+        (googleBooks as unknown as GoogleBooks).items[0],
+      );
+    } else {
+      googleBooksData = {};
+    }
+
+    return {
+      googleBooks: googleBooksData,
+      openLibrary: openLibraryDetailsData,
+    };
+  }
+
+  generateDataGoogleBooks(googleBooks: Item): any {
+    if (!googleBooks) {
+      return {};
+    }
+
+    const standardBook = {
+      title: googleBooks.volumeInfo.title,
+      publishedDate: googleBooks.volumeInfo.publishedDate,
+      description: googleBooks.volumeInfo.description,
+      authors: googleBooks.volumeInfo.authors,
+      printType: googleBooks.volumeInfo.printType,
+      categories: googleBooks.volumeInfo.categories,
+      imageLinks: googleBooks.volumeInfo.imageLinks,
+      previewLink: googleBooks.volumeInfo.previewLink,
+      infoLink: googleBooks.volumeInfo.infoLink,
+      publisher: googleBooks.volumeInfo.publisher,
+      language: googleBooks.volumeInfo.language,
+      pages: googleBooks.volumeInfo.pageCount,
+    };
+    return standardBook;
   }
 
   generateDataOpenLibraryDetails(
     openLibraryDetails: BookOpenLibraryDetails,
     openLibrary: BookOpenLibraryData,
-  ): {
-    isbn: Identifiers;
-    title: string;
-    publishedDate: string;
-    authors: string[];
-    industryIdentifiers: any[];
-    printType: string;
-    categories: any[];
-    imageLinks: { smallThumbnail: string; thumbnail: string };
-    previewLink: string;
-    infoLink: string;
-    publisher: string;
-  } {
+  ): any {
     const data = openLibrary;
+    console.log(data);
     const details = openLibraryDetails;
+    console.log(details);
+    if (!details || !data) return {};
     const standardBook = {
-      isbn: data.identifiers,
+      isbn: data.identifiers ?? ([] as unknown as Identifiers),
       title: data.title,
       publishedDate: details.details.publish_date,
       authors: [],
@@ -91,6 +118,8 @@ export class BooksService {
       previewLink: details.preview_url,
       infoLink: details.info_url,
       publisher: '',
+      language: '',
+      pages: 0,
     };
 
     if (details.details.publishers) {
@@ -167,6 +196,83 @@ export class BooksService {
       this.http
         .get(
           `https://www.librarything.com/api/talpa.php?search=${isbn}&token=${this.configService.apiKeyLibraryThing}&responseType=json&searchtype=isbn`,
+        )
+        .subscribe({
+          next: (response) => resolve(response.data),
+          error: (err) => reject(err),
+        });
+    });
+  }
+
+  // search book by title
+
+  async searchBookByTitle(title: string) {
+    console.log(title);
+    const [googleBooks, openLibrary, openLibraryDetails] = await Promise.all([
+      this.searchBookInGoogleBooksByTitle(title),
+      this.searchBookInOpenLibraryByTitle(title),
+      this.searchBookInOpenLibraryDetailsByTitle(title),
+    ]);
+
+    const openLibraryDetailsData = this.generateDataOpenLibraryDetails(
+      openLibraryDetails[`ISBN:${title}`] as unknown as BookOpenLibraryDetails,
+      openLibrary[`ISBN:${title}`] as unknown as BookOpenLibraryData,
+    );
+    const booksGoogle = [];
+    booksGoogle.push(
+      (googleBooks as unknown as GoogleBooks).items.map((item: Item) =>
+        this.generateDataGoogleBooks(item),
+      ),
+    );
+
+    return {
+      googleBooks: booksGoogle[0],
+      openLibrary: openLibraryDetailsData,
+    };
+  }
+
+  async searchBookInGoogleBooksByTitle(title: string) {
+    console.log(
+      `https://www.googleapis.com/books/v1/volumes?q=${title}&langRestrict=es&key=${this.configService.apiKeyGoogle}`,
+    );
+    return new Promise((resolve, reject) => {
+      this.http
+        .get(
+          `https://www.googleapis.com/books/v1/volumes?q=${title}&langRestrict=es&key=${this.configService.apiKeyGoogle}`,
+        )
+        .subscribe({
+          next: (response) => resolve(response.data),
+          error: (err) => reject(err),
+        });
+    });
+  }
+
+  async searchBookInOpenLibraryByTitle(title: string) {
+    // https://openlibrary.org/api/books?bibkeys=ISBN:978-84-376-0494-7&format=json&jscmd=details
+    console.log(
+      `https://openlibrary.org/api/books?bibkeys=${title}&format=json&jscmd=data`,
+    );
+    return new Promise((resolve, reject) => {
+      this.http
+        .get(
+          `https://openlibrary.org/api/books?bibkeys=${title}&format=json&jscmd=data`,
+        )
+        .subscribe({
+          next: (response) => resolve(response.data),
+          error: (err) => reject(err),
+        });
+    });
+  }
+
+  async searchBookInOpenLibraryDetailsByTitle(title: string) {
+    // https://openlibrary.org/api/books?bibkeys=ISBN:978-84-376-0494-7&format=json&jscmd=details
+    console.log(
+      `https://openlibrary.org/api/books?bibkeys=${title}&format=json&jscmd=details`,
+    );
+    return new Promise((resolve, reject) => {
+      this.http
+        .get(
+          `https://openlibrary.org/api/books?bibkeys=${title}&format=json&jscmd=details`,
         )
         .subscribe({
           next: (response) => resolve(response.data),
