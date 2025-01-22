@@ -15,7 +15,8 @@ export class BooksService {
   constructor(
     @InjectModel(Books.name) private readonly books: Model<Books>,
     private readonly http: HttpService,
-    @Inject(config.KEY) private configService: ConfigType<typeof config>,
+    @Inject(config.KEY)
+    private readonly configService: ConfigType<typeof config>,
   ) {}
 
   async create(data: CreateBooksDto) {
@@ -107,7 +108,6 @@ export class BooksService {
       publishedDate: details.details.publish_date,
       pages: details.details.number_of_pages,
       authors: [],
-      industryIdentifiers: [],
       printType: 'BOOK',
       categories: [],
       imageLinks: {

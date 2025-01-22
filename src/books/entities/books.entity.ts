@@ -21,6 +21,9 @@ export class Books extends Document {
   @Prop({ required: true })
   wishlist: boolean;
 
+  @Prop({ required: true })
+  lenguaje: string;
+
   @Prop({
     type: Types.ObjectId,
     ref: Library.name,

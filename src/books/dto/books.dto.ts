@@ -27,13 +27,16 @@ export class CreateBooksDto {
   readonly publication_year: number;
   @IsString()
   @IsNotEmpty()
-  readonly publisher: string;
+  readonly lenguaje: string;
   @IsString()
   @IsNotEmpty()
   readonly image_url: string;
   @IsBoolean()
   @IsNotEmpty()
   readonly wishlist: boolean;
+  @IsString()
+  @IsNotEmpty()
+  readonly publisher: string;
   @IsMongoId()
   @IsNotEmpty()
   readonly library: string;
