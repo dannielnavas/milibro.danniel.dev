@@ -6,10 +6,7 @@ import { Model } from 'mongoose';
 import { CreateBooksDto } from 'src/books/dto/books.dto';
 import { Books } from 'src/books/entities/books.entity';
 import { GoogleBooks, Item } from 'src/books/interface/google-books';
-import {
-  BookOpenLibraryData,
-  Identifiers,
-} from 'src/books/interface/open-library-data';
+import { BookOpenLibraryData } from 'src/books/interface/open-library-data';
 import { BookOpenLibraryDetails } from 'src/books/interface/open-library-details';
 import config from 'src/config';
 
@@ -78,6 +75,7 @@ export class BooksService {
     }
 
     const standardBook = {
+      isbn: googleBooks.volumeInfo.industryIdentifiers,
       title: googleBooks.volumeInfo.title,
       publishedDate: googleBooks.volumeInfo.publishedDate,
       description: googleBooks.volumeInfo.description,
@@ -104,9 +102,10 @@ export class BooksService {
     console.log(details);
     if (!details || !data) return {};
     const standardBook = {
-      isbn: data.identifiers ?? ([] as unknown as Identifiers),
+      isbn: details.bib_key.split(':')[1],
       title: data.title,
       publishedDate: details.details.publish_date,
+      pages: details.details.number_of_pages,
       authors: [],
       industryIdentifiers: [],
       printType: 'BOOK',
@@ -119,7 +118,6 @@ export class BooksService {
       infoLink: details.info_url,
       publisher: '',
       language: '',
-      pages: 0,
     };
 
     if (details.details.publishers) {
@@ -132,6 +130,27 @@ export class BooksService {
       data.authors.forEach(({ name }) => {
         standardBook.authors.push(name);
       });
+    }
+
+    if (details.details.languages) {
+      details.details.languages.forEach(({ key }) => {
+        switch (key) {
+          case '/languages/eng':
+            standardBook.language = 'en';
+            break;
+          case '/languages/spa':
+            standardBook.language = 'es';
+            break;
+          case '/languages/fre':
+            standardBook.language = 'fr';
+            break;
+          default:
+            standardBook.language = 'unknown';
+            break;
+        }
+      });
+    } else {
+      standardBook.language = 'unknown';
     }
 
     return standardBook;

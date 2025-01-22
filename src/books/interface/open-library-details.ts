@@ -9,6 +9,7 @@ export interface BookOpenLibraryDetails {
 
 interface Details {
   publishers: string[];
+  number_of_pages: number;
   title: string;
   identifiers: unknown;
   covers: number[];
@@ -21,6 +22,11 @@ interface Details {
   works: Work[];
   type: Work;
   revision: number;
+  languages: Language[];
+}
+
+interface Language {
+  key: string;
 }
 
 interface Work {
