@@ -1,5 +1,5 @@
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
-import { ERoles } from 'src/auth/models/roles.model';
+import { ERoles } from '../../auth/models/roles.model';
 
 export class CreateUserDto {
   @IsString()
