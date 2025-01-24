@@ -237,15 +237,13 @@ export class BooksService {
       openLibraryDetails[`ISBN:${title}`] as unknown as BookOpenLibraryDetails,
       openLibrary[`ISBN:${title}`] as unknown as BookOpenLibraryData,
     );
-    const booksGoogle = [];
-    booksGoogle.push(
-      (googleBooks as unknown as GoogleBooks).items.map((item: Item) =>
-        this.generateDataGoogleBooks(item),
-      ),
+
+    const booksGoogle = this.generateDataGoogleBooks(
+      (googleBooks as unknown as GoogleBooks).items[0],
     );
 
     return {
-      googleBooks: booksGoogle[0],
+      googleBooks: booksGoogle,
       openLibrary: openLibraryDetailsData,
     };
   }
