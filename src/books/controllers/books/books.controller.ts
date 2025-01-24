@@ -8,8 +8,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { CreateBooksDto } from 'src/books/dto/books.dto';
 import { BooksService } from 'src/books/services/books/books.service';
+import { CreateBooksDto } from '../../dto/books.dto';
 
 @Controller('books')
 @UseGuards(AuthGuard('jwt'))
