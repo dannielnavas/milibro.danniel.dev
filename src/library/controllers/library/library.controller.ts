@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { CreateLibraryDto } from 'src/library/dto/library.dto';
+import { CreateLibraryDto } from '../../dto/library.dto';
 import { LibraryService } from '../../services/library/library.service';
 
 @Controller('library')
