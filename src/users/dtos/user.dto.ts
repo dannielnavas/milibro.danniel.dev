@@ -16,10 +16,6 @@ export class CreateUserDto {
   @IsNotEmpty()
   @IsString()
   readonly name: string;
-
-  // @IsNotEmpty()
-  // @IsArray()
-  // readonly library: string[];
 }
 
 export class UserDto {
