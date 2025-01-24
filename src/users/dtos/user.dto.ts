@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString, Length } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 import { ERoles } from 'src/auth/models/roles.model';
 
 export class CreateUserDto {
@@ -8,7 +8,6 @@ export class CreateUserDto {
 
   @IsString()
   @IsNotEmpty()
-  @Length(6)
   readonly password: string;
 
   @IsNotEmpty()
