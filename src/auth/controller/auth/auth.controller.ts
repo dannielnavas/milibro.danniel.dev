@@ -11,7 +11,12 @@ export class AuthController {
   @UseGuards(AuthGuard('local'))
   @Post('login')
   login(@Req() req: Request) {
-    const user = req.user as UserDto;
+    console.log(req);
+    const user = (
+      req as unknown as {
+        user: UserDto;
+      }
+    ).user;
     return this.authService.generateJWT(user);
   }
 }
