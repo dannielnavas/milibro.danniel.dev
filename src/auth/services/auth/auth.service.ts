@@ -3,7 +3,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { Token } from 'src/auth/models/token.model';
-import { User } from 'src/users/entities/user.entity';
+import { UserDto } from 'src/users/dtos/user.dto';
 import { UsersService } from 'src/users/services/users/users.service';
 
 @Injectable()
@@ -26,7 +26,7 @@ export class AuthService {
     return null;
   }
 
-  generateJWT(user: User) {
+  generateJWT(user: UserDto) {
     if (user.email === undefined)
       throw new UnauthorizedException(`Credenciales invalidas`);
     const payload: Token = { role: user.role, sub: user.id };

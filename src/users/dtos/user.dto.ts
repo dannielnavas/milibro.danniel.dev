@@ -22,3 +22,13 @@ export class CreateUserDto {
   // @IsArray()
   // readonly library: string[];
 }
+
+export class UserDto {
+  id?: number;
+  name: string;
+  email: string;
+  password: string;
+  role: ERoles;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
