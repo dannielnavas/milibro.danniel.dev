@@ -227,16 +227,9 @@ export class BooksService {
 
   async searchBookByTitle(title: string) {
     console.log(title);
-    const [googleBooks, openLibrary, openLibraryDetails] = await Promise.all([
+    const [googleBooks] = await Promise.all([
       this.searchBookInGoogleBooksByTitle(title),
-      this.searchBookInOpenLibraryByTitle(title),
-      this.searchBookInOpenLibraryDetailsByTitle(title),
     ]);
-
-    const openLibraryDetailsData = this.generateDataOpenLibraryDetails(
-      openLibraryDetails[`ISBN:${title}`] as unknown as BookOpenLibraryDetails,
-      openLibrary[`ISBN:${title}`] as unknown as BookOpenLibraryData,
-    );
 
     const booksGoogle = this.generateDataGoogleBooks(
       (googleBooks as unknown as GoogleBooks).items[0],
@@ -244,7 +237,6 @@ export class BooksService {
 
     return {
       googleBooks: booksGoogle,
-      openLibrary: openLibraryDetailsData,
     };
   }
 
