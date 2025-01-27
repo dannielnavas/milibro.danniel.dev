@@ -230,13 +230,13 @@ export class BooksService {
     const [googleBooks] = await Promise.all([
       this.searchBookInGoogleBooksByTitle(title),
     ]);
-
-    const booksGoogle = this.generateDataGoogleBooks(
-      (googleBooks as unknown as GoogleBooks).items[0],
-    );
+    const data = [];
+    (googleBooks as GoogleBooks).items.forEach((item) => {
+      data.push(this.generateDataGoogleBooks(item));
+    });
 
     return {
-      googleBooks: booksGoogle,
+      googleBooks: data,
     };
   }
 
