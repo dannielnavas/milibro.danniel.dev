@@ -291,6 +291,6 @@ export class BooksService {
   }
 
   delete(id: string) {
-    return this.books.findByIdAndDelete(id).exec();
+    return this.books.findByIdAndDelete(id);
   }
 }
