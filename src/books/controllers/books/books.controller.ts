@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -40,5 +41,10 @@ export class BooksController {
   @Get('/search-title/:title')
   searchBookByTitle(@Param('title') title: string) {
     return this.booksService.searchBookByTitle(title);
+  }
+
+  @Delete('/:id')
+  delete(@Param('id') id: string) {
+    return this.booksService.delete(id);
   }
 }
