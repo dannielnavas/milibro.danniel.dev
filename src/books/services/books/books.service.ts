@@ -1,5 +1,5 @@
 import { HttpService } from '@nestjs/axios';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -290,7 +290,11 @@ export class BooksService {
     });
   }
 
-  delete(id: string) {
-    return this.books.findByIdAndDelete(id);
+  async delete(id: string) {
+    const books = await this.books.findById(id);
+    if (!books) {
+      throw new NotFoundException(`Product ${id} not found`);
+    }
+    return await this.books.findByIdAndDelete(id);
   }
 }
