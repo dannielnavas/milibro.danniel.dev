@@ -292,6 +292,7 @@ export class BooksService {
 
   async delete(id: string) {
     const books = await this.books.findById(id);
+    console.log(books);
     if (!books) {
       throw new NotFoundException(`Product ${id} not found`);
     }
