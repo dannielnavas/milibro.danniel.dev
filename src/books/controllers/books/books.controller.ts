@@ -35,6 +35,8 @@ export class BooksController {
 
   @Patch('/:id')
   updatePartial(@Param('id') id: string, @Body() payload: UpdateBooksDto) {
+    console.log(payload);
+    console.log(id);
     return this.booksService.updatePartial(id, payload);
   }
 
