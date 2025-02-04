@@ -4,13 +4,14 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Put,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { BooksService } from 'src/books/services/books/books.service';
-import { CreateBooksDto } from '../../dto/books.dto';
+import { CreateBooksDto, UpdateBooksDto } from '../../dto/books.dto';
 
 @Controller('books')
 @UseGuards(AuthGuard('jwt'))
@@ -30,6 +31,11 @@ export class BooksController {
   @Put('/:id')
   update(@Param('id') id: string, @Body() payload: Partial<CreateBooksDto>) {
     return this.booksService.update(id, payload);
+  }
+
+  @Patch('/:id')
+  updatePartial(@Param('id') id: string, @Body() payload: UpdateBooksDto) {
+    return this.booksService.updatePartial(id, payload);
   }
 
   @Get('/search/:isbn')

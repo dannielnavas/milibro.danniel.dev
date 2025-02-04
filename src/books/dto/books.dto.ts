@@ -1,3 +1,4 @@
+import { PartialType } from '@nestjs/mapped-types';
 import {
   IsBoolean,
   IsMongoId,
@@ -40,4 +41,12 @@ export class CreateBooksDto {
   @IsMongoId()
   @IsNotEmpty()
   readonly library: string;
+  @IsNumber()
+  rating: number;
+  @IsString()
+  startDate: string;
+  @IsString()
+  endDate: string;
 }
+
+export class UpdateBooksDto extends PartialType(CreateBooksDto) {}

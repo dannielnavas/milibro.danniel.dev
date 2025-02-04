@@ -3,7 +3,7 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { CreateBooksDto } from 'src/books/dto/books.dto';
+import { CreateBooksDto, UpdateBooksDto } from 'src/books/dto/books.dto';
 import { Books } from 'src/books/entities/books.entity';
 import { GoogleBooks, Item } from 'src/books/interface/google-books';
 import { BookOpenLibraryData } from 'src/books/interface/open-library-data';
@@ -297,5 +297,10 @@ export class BooksService {
       throw new NotFoundException(`Product ${id} not found`);
     }
     return await this.books.findByIdAndDelete(id);
+  }
+
+  async updatePartial(id: string, changes: UpdateBooksDto) {
+    const books = await this.books.findByIdAndUpdate(id, { $set: changes });
+    return books;
   }
 }

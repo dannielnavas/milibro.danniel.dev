@@ -24,6 +24,14 @@ export class Books extends Document {
   @Prop({ required: true })
   lenguaje: string;
 
+  @Prop()
+  rating: number;
+
+  @Prop()
+  startDate: string;
+  @Prop()
+  endDate: string;
+
   @Prop({
     type: Types.ObjectId,
     ref: Library.name,
