@@ -300,7 +300,11 @@ export class BooksService {
   }
 
   async updatePartial(id: string, changes: UpdateBooksDto) {
-    const books = await this.books.findByIdAndUpdate(id, { $set: changes });
+    const books = await this.books.findByIdAndUpdate(
+      id,
+      { $set: changes },
+      { new: true },
+    );
     return books;
   }
 }
