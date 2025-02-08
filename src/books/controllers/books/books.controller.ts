@@ -28,16 +28,17 @@ export class BooksController {
     return this.booksService.findOneByIdLibrary(id);
   }
 
-  @Put('/:id')
-  update(@Param('id') id: string, @Body() payload: Partial<CreateBooksDto>) {
-    return this.booksService.update(id, payload);
-  }
-
   @Patch('/:id')
   updatePartial(@Param('id') id: string, @Body() payload: UpdateBooksDto) {
     console.log(payload);
     console.log(id);
     return this.booksService.updatePartial(id, payload);
+  }
+  @Put('/:id')
+  update(@Param('id') id: string, @Body() payload: Partial<CreateBooksDto>) {
+    console.log(payload);
+    console.log('entro por donde no era');
+    return this.booksService.update(id, payload);
   }
 
   @Get('/search/:isbn')
