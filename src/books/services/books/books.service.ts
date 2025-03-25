@@ -274,7 +274,6 @@ export class BooksService {
   }
 
   async searchBookInOpenLibraryDetailsByTitle(title: string) {
-    // https://openlibrary.org/api/books?bibkeys=ISBN:978-84-376-0494-7&format=json&jscmd=details
     console.log(
       `https://openlibrary.org/api/books?bibkeys=${title}&format=json&jscmd=details`,
     );
@@ -308,5 +307,29 @@ export class BooksService {
       { new: true },
     );
     return books;
+  }
+
+  async searchAuthors(name: string) {
+    return new Promise((resolve, reject) => {
+      this.http
+        .get(`https://openlibrary.org/search/authors.json?q=${name}`)
+        .subscribe({
+          next: (response) => resolve(response.data),
+          error: () =>
+            reject(new NotFoundException(`Author ${name} not found`)),
+        });
+    });
+  }
+
+  async getPhoto(id: string) {
+    return new Promise((resolve, reject) => {
+      this.http
+        .get(`https://covers.openlibrary.org/a/olid/${id}-L.jpg`)
+        .subscribe({
+          next: (response) => resolve(response.data),
+          error: () =>
+            reject(new NotFoundException(`Photo for author ${id} not found`)),
+        });
+    });
   }
 }

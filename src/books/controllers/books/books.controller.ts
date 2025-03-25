@@ -56,4 +56,14 @@ export class BooksController {
   delete(@Param('id') id: string) {
     return this.booksService.delete(id);
   }
+
+  @Get('/author/:authorName')
+  findBooksByAuthor(@Param('authorName') authorName: string) {
+    return this.booksService.searchAuthors(authorName);
+  }
+
+  @Get('/photo/:id')
+  findBookPhoto(@Param('id') id: string) {
+    return this.booksService.getPhoto(id);
+  }
 }

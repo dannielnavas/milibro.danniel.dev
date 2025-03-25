@@ -2,6 +2,8 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { Library } from 'src/library/entities/library.entity';
 
+type BookStatus = 'reading' | 'completed' | 'wishlist' | 'none';
+
 @Schema({
   timestamps: true,
 })
@@ -37,6 +39,9 @@ export class Books extends Document {
     ref: Library.name,
   })
   library: Library | Types.ObjectId;
+
+  @Prop({ required: true, default: 'none' })
+  status: BookStatus;
 }
 
 export const BooksSchema = SchemaFactory.createForClass(Books);
