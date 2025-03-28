@@ -47,6 +47,19 @@ export class CreateBooksDto {
   startDate: string;
   @IsString()
   endDate: string;
+
+  @IsString()
+  genre: string;
+  @IsString()
+  status: string;
+  @IsString()
+  totalPages: number;
+  @IsString()
+  currentPage: number;
+  @IsString()
+  notes: string;
+  @IsString()
+  isFavorite: string;
 }
 
 export class UpdateBooksDto extends PartialType(CreateBooksDto) {}

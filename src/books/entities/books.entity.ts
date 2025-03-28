@@ -42,6 +42,17 @@ export class Books extends Document {
 
   @Prop({ required: true, default: 'none' })
   status: BookStatus;
+
+  @Prop()
+  genre: string;
+  @Prop()
+  totalPages: number;
+  @Prop()
+  currentPage: number;
+  @Prop()
+  notes: string;
+  @Prop()
+  isFavorite: string;
 }
 
 export const BooksSchema = SchemaFactory.createForClass(Books);
