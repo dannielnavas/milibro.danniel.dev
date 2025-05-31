@@ -14,6 +14,9 @@ export class User extends Document {
   @Prop({ required: true })
   name: string;
 
+  @Prop({ required: false })
+  image: string;
+
   // @Prop({ type: [{ type: Types.ObjectId, ref: Library.name }] })
   // library: Types.Array<Library>;
 }

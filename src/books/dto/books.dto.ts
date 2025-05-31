@@ -35,31 +35,21 @@ export class CreateBooksDto {
   @IsBoolean()
   @IsNotEmpty()
   readonly wishlist: boolean;
-  @IsString()
-  @IsNotEmpty()
-  readonly publisher: string;
   @IsMongoId()
   @IsNotEmpty()
   readonly library: string;
-  @IsNumber()
-  rating: number;
   @IsString()
   startDate: string;
   @IsString()
   endDate: string;
-
-  @IsString()
-  genre: string;
   @IsString()
   status: string;
   @IsString()
+  genre: string;
+  @IsString()
   totalPages: number;
   @IsString()
-  currentPage: number;
-  @IsString()
-  notes: string;
-  @IsString()
-  isFavorite: string;
+  description: string;
 }
 
 export class UpdateBooksDto extends PartialType(CreateBooksDto) {}

@@ -16,6 +16,10 @@ export class CreateUserDto {
   @IsNotEmpty()
   @IsString()
   readonly name: string;
+
+  @IsNotEmpty()
+  @IsString()
+  readonly image: string;
 }
 
 export class UserDto {
@@ -24,6 +28,7 @@ export class UserDto {
   email: string;
   password: string;
   role: ERoles;
+  image: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
