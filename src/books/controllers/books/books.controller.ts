@@ -66,4 +66,9 @@ export class BooksController {
   findBookPhoto(@Param('id') id: string) {
     return this.booksService.getPhoto(id);
   }
+
+  @Post('/recommendations')
+  recommendBooks(@Body() payload: { books: CreateBooksDto[] }) {
+    return this.booksService.recommendBooks(payload.books);
+  }
 }

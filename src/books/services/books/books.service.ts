@@ -1,3 +1,4 @@
+import { GoogleGenAI } from '@google/genai';
 import { HttpService } from '@nestjs/axios';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
@@ -12,6 +13,9 @@ import config from 'src/config';
 
 @Injectable()
 export class BooksService {
+  ai = new GoogleGenAI({
+    apiKey: 'AIzaSyDYHrI2xZU_lao8GdRXfOAuqg81_nWwbVU',
+  });
   constructor(
     @InjectModel(Books.name) private readonly books: Model<Books>,
     private readonly http: HttpService,
@@ -331,5 +335,18 @@ export class BooksService {
             reject(new NotFoundException(`Photo for author ${id} not found`)),
         });
     });
+  }
+
+  async recommendBooks(books: CreateBooksDto[]) {
+    const response = await this.ai.models.generateContent({
+      model: 'gemini-2.0-flash',
+      contents:
+        'Generate a list of book recommendations based on the following books: ' +
+        books.map((book) => `${book.title} by ${book.author}`).join(', '),
+    });
+    if (!response || !response.text) {
+      throw new NotFoundException('No recommendations found');
+    }
+    return response.text;
   }
 }
