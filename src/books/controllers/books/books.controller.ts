@@ -68,7 +68,8 @@ export class BooksController {
   }
 
   @Post('/recommendations')
-  recommendBooks(@Body() payload: { books: CreateBooksDto[] }) {
-    return this.booksService.recommendBooks(payload.books);
+  recommendBooks(@Body() payload: CreateBooksDto[]) {
+    console.log(payload);
+    return this.booksService.recommendBooks(payload);
   }
 }
