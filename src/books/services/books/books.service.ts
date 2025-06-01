@@ -1,6 +1,7 @@
 import { GoogleGenAI } from '@google/genai';
 import { HttpService } from '@nestjs/axios';
 import {
+  BadRequestException,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -53,32 +54,46 @@ export class BooksService {
   }
 
   async searchBookByIsbn(isbn: string) {
-    console.log(isbn);
-    const [googleBooks, openLibrary, openLibraryDetails] = await Promise.all([
-      this.searchBookInGoogleBooks(isbn),
-      this.searchBookInOpenLibrary(isbn),
-      this.searchBookInOpenLibraryDetails(isbn),
-    ]);
+    try {
+      if (!isbn || typeof isbn !== 'string' || isbn.trim() === '') {
+        this.logger.warn('Intento de búsqueda con ISBN vacío o inválido.');
+        throw new BadRequestException('Debes proporcionar un ISBN válido.');
+      }
+      this.logger.debug(`Buscando libro por ISBN: ${isbn}`);
+      const [googleBooks, openLibrary, openLibraryDetails] = await Promise.all([
+        this.searchBookInGoogleBooks(isbn),
+        this.searchBookInOpenLibrary(isbn),
+        this.searchBookInOpenLibraryDetails(isbn),
+      ]);
 
-    const openLibraryDetailsData = this.generateDataOpenLibraryDetails(
-      openLibraryDetails[`ISBN:${isbn}`] as unknown as BookOpenLibraryDetails,
-      openLibrary[`ISBN:${isbn}`] as unknown as BookOpenLibraryData,
-    );
-
-    let googleBooksData = {};
-
-    if ((googleBooks as unknown as GoogleBooks).totalItems > 0) {
-      googleBooksData = this.generateDataGoogleBooks(
-        (googleBooks as unknown as GoogleBooks).items[0],
+      const openLibraryDetailsData = this.generateDataOpenLibraryDetails(
+        openLibraryDetails[`ISBN:${isbn}`] as unknown as BookOpenLibraryDetails,
+        openLibrary[`ISBN:${isbn}`] as unknown as BookOpenLibraryData,
       );
-    } else {
-      googleBooksData = {};
-    }
 
-    return {
-      googleBooks: googleBooksData,
-      openLibrary: openLibraryDetailsData,
-    };
+      let googleBooksData = {};
+      if ((googleBooks as unknown as GoogleBooks).totalItems > 0) {
+        googleBooksData = this.generateDataGoogleBooks(
+          (googleBooks as unknown as GoogleBooks).items[0],
+        );
+      }
+
+      if (!googleBooksData && !openLibraryDetailsData) {
+        this.logger.warn(`No se encontraron datos para el ISBN: ${isbn}`);
+        throw new NotFoundException('No se encontraron datos para el ISBN proporcionado.');
+      }
+
+      return {
+        googleBooks: googleBooksData,
+        openLibrary: openLibraryDetailsData,
+      };
+    } catch (error) {
+      this.logger.error('Error al buscar libro por ISBN:', error.stack);
+      if (error instanceof BadRequestException || error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Ocurrió un error al buscar el libro por ISBN.');
+    }
   }
 
   generateDataGoogleBooks(googleBooks: Item): any {
@@ -237,18 +252,35 @@ export class BooksService {
   // search book by title
 
   async searchBookByTitle(title: string) {
-    console.log(title);
-    const [googleBooks] = await Promise.all([
-      this.searchBookInGoogleBooksByTitle(title),
-    ]);
-    const data = [];
-    (googleBooks as GoogleBooks).items.forEach((item) => {
-      data.push(this.generateDataGoogleBooks(item));
-    });
-
-    return {
-      googleBooks: data,
-    };
+    try {
+      if (!title || typeof title !== 'string' || title.trim() === '') {
+        this.logger.warn('Intento de búsqueda con título vacío o inválido.');
+        throw new BadRequestException('Debes proporcionar un título válido.');
+      }
+      this.logger.debug(`Buscando libro por título: ${title}`);
+      const [googleBooks] = await Promise.all([
+        this.searchBookInGoogleBooksByTitle(title),
+      ]);
+      const data = [];
+      if ((googleBooks as GoogleBooks).items && (googleBooks as GoogleBooks).items.length > 0) {
+        (googleBooks as GoogleBooks).items.forEach((item) => {
+          data.push(this.generateDataGoogleBooks(item));
+        });
+      }
+      if (data.length === 0) {
+        this.logger.warn(`No se encontraron libros para el título: ${title}`);
+        throw new NotFoundException('No se encontraron libros para el título proporcionado.');
+      }
+      return {
+        googleBooks: data,
+      };
+    } catch (error) {
+      this.logger.error('Error al buscar libro por título:', error.stack);
+      if (error instanceof BadRequestException || error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Ocurrió un error al buscar el libro por título.');
+    }
   }
 
   async searchBookInGoogleBooksByTitle(title: string) {
@@ -321,57 +353,86 @@ export class BooksService {
   }
 
   async searchAuthors(name: string) {
-    return new Promise((resolve, reject) => {
-      this.http
-        .get(`https://openlibrary.org/search/authors.json?q=${name}`)
-        .subscribe({
-          next: (response) => resolve(response.data),
-          error: () =>
-            reject(new NotFoundException(`Author ${name} not found`)),
-        });
-    });
+    try {
+      if (!name || typeof name !== 'string' || name.trim() === '') {
+        this.logger.warn('Intento de búsqueda de autor con nombre vacío o inválido.');
+        throw new BadRequestException('Debes proporcionar un nombre de autor válido.');
+      }
+      this.logger.debug(`Buscando autor: ${name}`);
+      return await new Promise((resolve, reject) => {
+        this.http
+          .get(`https://openlibrary.org/search/authors.json?q=${name}`)
+          .subscribe({
+            next: (response) => {
+              if (!response.data || !response.data.docs || response.data.docs.length === 0) {
+                this.logger.warn(`No se encontraron autores para: ${name}`);
+                reject(new NotFoundException(`No se encontraron autores para el nombre proporcionado.`));
+              } else {
+                resolve(response.data);
+              }
+            },
+            error: (err) => {
+              this.logger.error('Error al buscar autor:', err.stack);
+              reject(new InternalServerErrorException('Ocurrió un error al buscar el autor.'));
+            },
+          });
+      });
+    } catch (error) {
+      this.logger.error('Error general al buscar autor:', error.stack);
+      if (error instanceof BadRequestException || error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Ocurrió un error al buscar el autor.');
+    }
   }
 
   async getPhoto(id: string) {
-    return new Promise((resolve, reject) => {
-      this.http
-        .get(`https://covers.openlibrary.org/a/olid/${id}-L.jpg`)
-        .subscribe({
-          next: (response) => resolve(response.data),
-          error: () =>
-            reject(new NotFoundException(`Photo for author ${id} not found`)),
-        });
-    });
+    try {
+      if (!id || typeof id !== 'string' || id.trim() === '') {
+        this.logger.warn('Intento de obtener foto con ID vacío o inválido.');
+        throw new BadRequestException('Debes proporcionar un ID de autor válido.');
+      }
+      this.logger.debug(`Obteniendo foto para autor con ID: ${id}`);
+      return await new Promise((resolve, reject) => {
+        this.http
+          .get(`https://covers.openlibrary.org/a/olid/${id}-L.jpg`)
+          .subscribe({
+            next: (response) => {
+              if (!response.data) {
+                this.logger.warn(`No se encontró foto para el autor con ID: ${id}`);
+                reject(new NotFoundException(`No se encontró foto para el autor con el ID proporcionado.`));
+              } else {
+                resolve(response.data);
+              }
+            },
+            error: (err) => {
+              this.logger.error('Error al obtener foto del autor:', err.stack);
+              reject(new InternalServerErrorException('Ocurrió un error al obtener la foto del autor.'));
+            },
+          });
+      });
+    } catch (error) {
+      this.logger.error('Error general al obtener foto del autor:', error.stack);
+      if (error instanceof BadRequestException || error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Ocurrió un error al obtener la foto del autor.');
+    }
   }
 
   async recommendBooks(books: CreateBooksDto[]) {
+    try {
     if (!books || books.length === 0) {
-      // Opción 1: Lanzar un error
-      // throw new BadRequestException('Book list cannot be empty to provide recommendations.');
-      // Opción 2: Devolver un mensaje específico o una lista de recomendaciones genéricas/populares
-      // (esto requeriría un prompt diferente o una lógica separada)
+      this.logger.warn(
+        'Attempted to get recommendations with an empty book list.',
+      );
       return 'No se pueden generar recomendaciones sin una lista de libros leídos.';
     }
-
-    const MAX_BOOKS_IN_PROMPT = 50; // Define un límite razonable
-    const booksForPrompt =
-      books.length > MAX_BOOKS_IN_PROMPT
-        ? books.slice(0, MAX_BOOKS_IN_PROMPT)
-        : books;
-    // Luego usa booksForPrompt para construir el string del prompt
-    const bookListString = booksForPrompt
-      .map((book) => `${book.title} by ${book.author}`)
-      .join(', ');
-    // Actualiza el prompt:
-    // ... Ejemplo de lista de un usuario:
-    // ${bookListString}
-    // ${booksForPrompt.length < books.length ? '\n(Nota: La lista de libros ha sido truncada para el análisis.)' : ''}
-    // ...
 
     const content = `Eres un motor de recomendación de libros avanzado para una aplicación de inventario de libros. Tu objetivo es proporcionar a los usuarios recomendaciones personalizadas basadas en su historial de lectura.
 
     **Entrada:** Recibirás una lista de libros que el usuario ha leído. Ejemplo de lista de un usuario:
-    ${bookListString}
+    ${books.slice(0, 50).map((book) => `${book.title} by ${book.author}`).join(', ')}
 
     **Tu Tarea:**
     1.  **Analiza exhaustivamente la lista de libros leídos por el usuario.** Identifica géneros (ej. ciencia ficción, fantasía, terror, manga, clásicos de aventura, thriller, etc.), autores recurrentes, subgéneros, temáticas comunes o estilos literarios predominantes.
@@ -382,50 +443,42 @@ export class BooksService {
     4.  **Formato Estricto de Respuesta:** Tu respuesta DEBE comenzar con la frase "El libro recomendado es:" seguida únicamente por el TÍTULO DEL LIBRO y el NOMBRE DEL AUTOR. No añadas ninguna otra palabra, descripción, justificación o saludo.
 
     **Ejemplo de lógica interna (esto es para guiar el pensamiento de la IA, no debe incluirse en la respuesta final al usuario de la app):** Si la lista del usuario contiene muchos libros de Stephen King y algunos de Edgar Allan Poe, una buena recomendación podría ser otro autor de terror moderno con un estilo similar, o un clásico del horror gótico. Si ha leído mucho Dr. Stone y también ciencia ficción clásica como Fundación, podrías buscar otra obra de ciencia ficción con elementos de construcción de civilizaciones, supervivencia o un fuerte componente científico, o incluso un manga similar si la predominancia del usuario es el manga. El objetivo es identificar una veta clara en los gustos del usuario y ofrecer algo nuevo dentro de esa veta.`;
-    console.log(content);
+
+    this.logger.debug(`Prompt enviado a la IA para ${books.length} libros (usando ${books.slice(0, 50).length} para el prompt).`);
+
     const response = await this.ai.models.generateContent({
       model: 'gemini-2.0-flash',
-      contents: content,
+      contents: [{ role: "user", parts: [{ text: content }] }],
+      config: {
+          temperature: 0.7,
+          maxOutputTokens: 200,
+        }
     });
     if (!response || !response.text) {
       throw new NotFoundException('No recommendations found');
     }
-    console.log(response.text);
 
-    // ... después de obtener la respuesta de la IA
     const rawResponseText =
-      response?.candidates?.[0]?.content?.parts?.[0]?.text; // Ajusta esto según la estructura real de tu SDK
+      response?.candidates?.[0]?.content?.parts?.[0]?.text;
 
     if (!rawResponseText) {
-      this.logger.warn('AI did not return any text content.'); // Asumiendo que tienes un logger
-      throw new NotFoundException('No recommendations found from AI.');
+      this.logger.warn('La IA no devolvió contenido de texto.');
+        throw new NotFoundException('No se encontraron recomendaciones de la IA.');
     }
 
     const recommendationPrefix = 'El libro recomendado es:';
     if (!rawResponseText.startsWith(recommendationPrefix)) {
-      this.logger.error(
-        `AI response did not follow the expected format: ${rawResponseText}`,
-      );
-      // Podrías intentar "limpiar" la respuesta si es un error menor, o simplemente fallar.
-      throw new InternalServerErrorException(
-        'Failed to get a valid recommendation due to formatting issues.',
-      );
+      this.logger.error(`La respuesta de la IA no siguió el formato esperado: ${rawResponseText}`);
+        throw new InternalServerErrorException('Error al obtener una recomendación válida de la IA debido a problemas de formato.');
     }
-
-    // const recommendedBookInfo = rawResponseText
-    //   .substring(recommendationPrefix.length)
-    //   .trim();
-    // if (recommendedBookInfo.split(' by ').length < 2) {
-    //   // Validación simple de "Título by Autor"
-    //   this.logger.error(
-    //     `AI response format for book/author is invalid: ${recommendedBookInfo}`,
-    //   );
-    //   throw new InternalServerErrorException(
-    //     'Failed to parse book and author from AI recommendation.',
-    //   );
-    // }
-
-    console.log(rawResponseText); // o this.logger.debug(rawResponseText);
+    this.logger.log(`Recomendación generada: ${rawResponseText}`);
     return rawResponseText;
+    } catch (error) {
+      this.logger.error('Error al llamar al modelo de IA para recomendaciones de libros:', error.stack);
+      if (error instanceof BadRequestException || error instanceof NotFoundException || error instanceof InternalServerErrorException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Ocurrió un error al obtener recomendaciones del servicio de IA.');
+    }
   }
 }
