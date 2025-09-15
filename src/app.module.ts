@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { BooksModule } from './books/books.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import config from './config';
 import { DatabaseModule } from './database/database.module';
 import { environments } from './environments';
@@ -28,12 +29,16 @@ import { UsersModule } from './users/users.module';
         MONGO_HOST: Joi.string().required(),
         MONGO_PORT: Joi.number().required(),
         MONGO_CONNECTION: Joi.string().required(),
+        CLOUDINARY_CLOUD_NAME: Joi.string().required(),
+        CLOUDINARY_API_KEY: Joi.string().required(),
+        CLOUDINARY_API_SECRET: Joi.string().required(),
       }),
     }),
     AuthModule,
     UsersModule,
     LibraryModule,
     BooksModule,
+    CloudinaryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

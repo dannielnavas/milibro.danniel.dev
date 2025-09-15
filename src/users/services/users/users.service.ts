@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import { ObjectId } from 'mongodb';
 import { Model } from 'mongoose';
-import { CreateUserDto } from 'src/users/dtos/user.dto';
+import { CreateUserDto, UpdateUserDto } from 'src/users/dtos/user.dto';
 import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
@@ -46,7 +46,7 @@ export class UsersService {
     return this.users.findById(id).exec();
   }
 
-  async update(id: string, payload: CreateUserDto) {
+  async update(id: string, payload: UpdateUserDto) {
     const userData = await this.getUserById(id);
     if (!userData) {
       throw new NotFoundException(`User #${id} not found`);

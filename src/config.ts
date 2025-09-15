@@ -5,6 +5,11 @@ export default registerAs('config', () => ({
   apiKeyLibraryThing: process.env.API_KEY_LIBRARY_THING,
   apiKey: process.env.API_KEY,
   jwtSecret: process.env.JWT_SECRET,
+  cloudinary: {
+    cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+    apiKey: process.env.CLOUDINARY_API_KEY,
+    apiSecret: process.env.CLOUDINARY_API_SECRET,
+  },
   mongo: {
     dbName: process.env.MONGO_DB,
     user: process.env.MONGO_INIT_DB_ROOT_USERNAME,
